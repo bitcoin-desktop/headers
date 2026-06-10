@@ -10,8 +10,8 @@
 //     supervisor (pm2/systemd) does the resurrecting
 //   - key from environment or file, NEVER argv
 //
-//   NOSTR_PRIVKEY=nsec1… node publisher/publisher.mjs --network mainnet
-//   node publisher/publisher.mjs --network testnet4 --key-file ~/.keys/headers
+//   NOSTR_PRIVKEY=nsec1… node publisher/publisher.js --network mainnet
+//   node publisher/publisher.js --network testnet4 --key-file ~/.keys/headers
 //
 // Options: --network mainnet|testnet4   (wire tag btc|tbtc4)
 //          --relays wss://a,wss://b     (default: damus, nos.lol, nostr.band)
