@@ -25,40 +25,31 @@ Common definitions:
 
 ---
 
-## 1. Live events (Nostr)
+## 1. Live events (Nostr) — NIP-33333
 
-A parameterized-replaceable event carrying the most recent headers.
+The live channel is specified by **[NIP-33333](https://nip-333.github.io/)** (Bitcoin Block
+Headers over Nostr) and this spec defers to it entirely. Summary of the normative points:
 
-```json
-{
-  "kind": 31021,
-  "content": "<concatenated 80-byte headers, hex, oldest first>",
-  "tags": [
-    ["d", "<network>"],
-    ["n", "<network>"],
-    ["tip", "<height of newest header>"],
-    ["tiphash", "<block hash of newest header, display order>"],
-    ["start", "<height of oldest header>"],
-    ["count", "<number of headers>"]
-  ]
-}
-```
+- kind `33333`, parameterized replaceable; `d: latest`
+- `n`: `btc` | `tbtc3` | `tbtc4` (mapping to schema network names `mainnet` / `testnet` /
+  `testnet4`)
+- content: exactly 12 concatenated headers, lowercase hex, ascending, tip last
+- `tip` recommended; `u` tags point at bulk data sources (channels 2–3 below) with optional
+  `epoch`/`archive` hints; `p` tags name other publishers; `alt` per NIP-31
 
-- `d` is the network name, so one publisher key maintains exactly one live event **per
-  network**, and relays replace rather than accumulate.
-- `content` carries 12 headers (~2 hours of mainnet blocks): enough to bridge short gaps and
-  to confirm recent history; clients further behind use channels 2–3 or P2P.
-- The event's `created_at` **is the liveness heartbeat**: a consumer (or watchdog) judges the
-  feed healthy iff the newest event is younger than a few block intervals.
+The event's `created_at` **is the liveness heartbeat**: the feed is healthy iff the newest
+event is younger than a few block intervals.
 
-**Trust model (normative):** publishers are identified but **not trusted**. Clients MUST
-verify every header (PoW against bits, linkage, and — where they maintain a chain — the full
-header rules) and SHOULD follow multiple publisher keys, preferring the heaviest verified
-chain. A publisher key is a brand and a filter, never a security boundary.
+**Trust model (normative here and in the NIP's spirit):** publishers are identified but
+**not trusted**. Clients MUST verify every header (PoW, linkage, and — where they maintain a
+chain — the full header rules) and SHOULD follow multiple publisher keys (`p` tags help
+discovery), preferring the heaviest verified chain. A publisher key is a brand and a filter,
+never a security boundary.
 
-**Publisher conduct (normative):** a publisher MUST validate headers against its own
-maintained chain before signing; MUST exit (crash-only) rather than run silently wedged, so
-supervisors can act; SHOULD publish to ≥3 relays.
+**Publisher conduct (normative, this spec):** a publisher MUST validate headers against its
+own maintained chain before signing; MUST exit (crash-only) rather than run silently wedged,
+so supervisors can act; SHOULD publish to ≥3 relays; SHOULD carry `u` tags referencing
+channels 2–3.
 
 ## 2. Epoch files (immutable bulk)
 
@@ -101,17 +92,19 @@ and timestamp.
 
 ---
 
+## Resolved in review
+
+- **Kind / event format**: defer to published **NIP-33333** (kind 33333, `d: latest`,
+  `n: btc|tbtc3|tbtc4`, 12 headers). The older NIP-XX (31021) draft is superseded; bitcoincc
+  copies get backfilled to point at NIP-33333.
+- **Network naming**: NIP codes on the wire (`btc`…), schema names (`mainnet`…) everywhere
+  else; the mapping is normative above.
+
 ## Open questions for review
 
-1. **Kind number.** This draft says `31021` (matches the published NIP-XX draft). The
-   currently-live publisher emits `33333` with `n: btc` — an undocumented divergence. Decide:
-   keep 31021 (and migrate the live feed), adopt 33333 (and rewrite the NIP), or pick fresh.
-2. **`d` tag.** Old draft used `d: latest` (one event per pubkey *total*); this draft uses
-   `d: <network>` (one per network). Confirm.
-3. **Seal depth.** How many confirmations before an epoch file is written — 6? 100? (Deeper =
+1. **Seal depth.** How many confirmations before an epoch file is written — 6? 100? (Deeper =
    reorg-proof files; shallower = fresher bulk.)
-4. **Header count in live events.** 12 (status quo) — enough? More costs little.
-5. **Signing dependency.** The publisher needs BIP-340 *signing* (never in the schema repo):
+2. **Signing dependency.** The publisher needs BIP-340 *signing* (never in the schema repo):
    take `@noble/secp256k1` as the one audited dependency, or write the ~80-line signer in
    house style?
 
