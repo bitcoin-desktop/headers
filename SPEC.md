@@ -31,7 +31,7 @@ A parameterized-replaceable event carrying the most recent headers.
 
 ```json
 {
-  "kind": 31021,
+  "kind": 33333,
   "content": "<concatenated 80-byte headers, hex, oldest first>",
   "tags": [
     ["d", "<network>"],
@@ -103,9 +103,11 @@ and timestamp.
 
 ## Open questions for review
 
-1. **Kind number.** This draft says `31021` (matches the published NIP-XX draft). The
-   currently-live publisher emits `33333` with `n: btc` — an undocumented divergence. Decide:
-   keep 31021 (and migrate the live feed), adopt 33333 (and rewrite the NIP), or pick fresh.
+1. **Kind number — RESOLVED: `33333`** (what the live feed already emits; in the
+   parameterized-replaceable range, so replace semantics hold). Consequence: the NIP-XX draft
+   in bitcoincc/headers is rewritten to match this spec (33333, network names per the
+   `network` definition above) and backfilled to bitcoincc once agreed. The live feed needs
+   only its `n: btc` tag aligned to `n: mainnet` when the rebuilt publisher lands.
 2. **`d` tag.** Old draft used `d: latest` (one event per pubkey *total*); this draft uses
    `d: <network>` (one per network). Confirm.
 3. **Seal depth.** How many confirmations before an epoch file is written — 6? 100? (Deeper =
