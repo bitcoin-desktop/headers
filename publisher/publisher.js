@@ -25,7 +25,7 @@ import { Codec } from '@bitcoin-desktop/schema/codec/codec.js';
 import { P2pEngine } from '@bitcoin-desktop/schema/codec/p2p.js';
 import { HeaderEngine } from '@bitcoin-desktop/schema/codec/headers.js';
 import { LightNode, MemoryStorage } from '@bitcoin-desktop/schema/codec/node.js';
-import { PeerConnection } from '@bitcoin-desktop/schema/bridge/bridge.mjs';
+import { PeerConnection } from '@bitcoin-desktop/schema/bridge/bridge.js';
 import { parsePrivateKey, publicKey, buildHeadersEvent, RelayPool } from './nostr.js';
 
 const HEADERS_COUNT = 12;
