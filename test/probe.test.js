@@ -8,7 +8,7 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { attachWsServer } from '@bitcoin-desktop/schema/codec/ws.js';
 import { publicKey, finalizeEvent } from '../publisher/nostr.js';
-import { probe } from '../watchdog/probe.mjs';
+import { probe } from '../watchdog/probe.js';
 
 const dep = (p) => readFile(new URL(import.meta.resolve('@bitcoin-desktop/schema/' + p)), 'utf8').then(JSON.parse);
 const t4 = await dep('test/vectors/testnet4.json');

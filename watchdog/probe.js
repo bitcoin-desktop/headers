@@ -11,7 +11,7 @@
 // Prints one line per stream plus a JSON summary. Exit 0 healthy,
 // 1 unhealthy, 2 probe failure (e.g. no relay reachable).
 //
-//   node watchdog/probe.mjs [--relays wss://a,wss://b] [--author <hex>] [--json]
+//   node watchdog/probe.js [--relays wss://a,wss://b] [--author <hex>] [--json]
 
 import { readFile } from 'node:fs/promises';
 import { Codec } from '@bitcoin-desktop/schema/codec/codec.js';
