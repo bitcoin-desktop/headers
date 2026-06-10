@@ -1,7 +1,7 @@
 # Bitcoin Headers Distribution — Specification
 
-**Status: DRAFT for review — spec first, code second.** Nothing in this repo is implemented
-until this document is agreed.
+**Status: AGREED (v1, 2026-06-10).** Spec first, code second — this document is the contract;
+implementation may now begin. Changes require review like any other.
 
 This specifies how Bitcoin block headers are distributed across three complementary channels.
 Headers are self-certifying (proof-of-work plus linkage), so **no channel, host, or publisher
@@ -21,7 +21,9 @@ Common definitions:
 - **network**: one of `mainnet`, `testnet`, `testnet4`, `signet`, `regtest` — matching the
   NetworkParams names in [bitcoin-desktop/schema](https://bitcoin-desktop.github.io/schema/).
 - **height/epoch**: epoch `n` covers heights `n·2016 … n·2016+2015`. An epoch is **sealed**
-  once its last block has ≥ some confirmation depth (see Open Question 3).
+  once its last block has **≥ 12 confirmations** — one number across the system, matching the
+  NIP-33333 live-event window. Seal depth is per-network policy: it may be deepened for a
+  network without a spec change, never shallowed.
 
 ---
 
@@ -100,13 +102,14 @@ and timestamp.
 - **Network naming**: NIP codes on the wire (`btc`…), schema names (`mainnet`…) everywhere
   else; the mapping is normative above.
 
-## Open questions for review
+- **Seal depth: 12 confirmations** (see definition above). Rationale: one number across the
+  system; no mainnet reorg has approached 12 deep. Test networks accept the residual risk;
+  per-network deepening is allowed.
+- **Signing: `@noble/secp256k1`** — the one audited dependency, confined to the publisher
+  (signing never enters the schema repo). Rationale: signing is the sole operation where an
+  implementation bug leaks the private key; the dangerous part gets the boring choice.
 
-1. **Seal depth.** How many confirmations before an epoch file is written — 6? 100? (Deeper =
-   reorg-proof files; shallower = fresher bulk.)
-2. **Signing dependency.** The publisher needs BIP-340 *signing* (never in the schema repo):
-   take `@noble/secp256k1` as the one audited dependency, or write the ~80-line signer in
-   house style?
+No open questions remain.
 
 ---
 
