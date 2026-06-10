@@ -1,0 +1,17 @@
+{
+  "name": "@bitcoin-desktop/headers",
+  "version": "0.1.0",
+  "description": "Bitcoin header distribution per SPEC.md: NIP-33333 live events, epoch files, current snapshots. Independent project; not affiliated with Bitcoin Core.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "publisher": "node publisher/publisher.mjs"
+  },
+  "dependencies": {
+    "@bitcoin-desktop/schema": "github:bitcoin-desktop/schema#gh-pages",
+    "@noble/curves": "^1.6.0"
+  },
+  "repository": { "type": "git", "url": "https://github.com/bitcoin-desktop/headers.git" },
+  "homepage": "https://bitcoin-desktop.github.io/headers/",
+  "license": "MIT"
+}
