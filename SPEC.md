@@ -1,7 +1,6 @@
 # Bitcoin Headers Distribution — Specification
 
-**Status: DRAFT for review — spec first, code second.** Nothing in this repo is implemented
-until this document is agreed.
+**Status: AGREED v1** — spec first, code second; all review questions resolved below.
 
 This specifies how Bitcoin block headers are distributed across three complementary channels.
 Headers are self-certifying (proof-of-work plus linkage), so **no channel, host, or publisher
@@ -21,7 +20,8 @@ Common definitions:
 - **network**: one of `mainnet`, `testnet`, `testnet4`, `signet`, `regtest` — matching the
   NetworkParams names in [bitcoin-desktop/schema](https://bitcoin-desktop.github.io/schema/).
 - **height/epoch**: epoch `n` covers heights `n·2016 … n·2016+2015`. An epoch is **sealed**
-  once its last block has ≥ some confirmation depth (see Open Question 3).
+  once its last block has ≥ 12 confirmations (matching the NIP's 12-header window; a
+  generator MAY deepen this per network).
 
 ---
 
@@ -30,7 +30,8 @@ Common definitions:
 The live channel is specified by **[NIP-33333](https://nip-333.github.io/)** (Bitcoin Block
 Headers over Nostr) and this spec defers to it entirely. Summary of the normative points:
 
-- kind `33333`, parameterized replaceable; `d: latest`
+- kind `33333`, parameterized replaceable; `d` = the network code, equal to `n` — one
+  replaceable stream per network per key (relays replace on `(pubkey, kind, d)`)
 - `n`: `btc` | `tbtc3` | `tbtc4` (mapping to schema network names `mainnet` / `testnet` /
   `testnet4`)
 - content: exactly 12 concatenated headers, lowercase hex, ascending, tip last
@@ -94,19 +95,20 @@ and timestamp.
 
 ## Resolved in review
 
-- **Kind / event format**: defer to published **NIP-33333** (kind 33333, `d: latest`,
+- **Kind / event format**: defer to published **NIP-33333** (kind 33333, `d` = network code,
   `n: btc|tbtc3|tbtc4`, 12 headers). The older NIP-XX (31021) draft is superseded; bitcoincc
-  copies get backfilled to point at NIP-33333.
+  copies get backfilled to point at NIP-33333. (Earlier drafts used `d: latest` for all
+  networks — superseded because the `n` tag is not part of the replaceable-event key, so one
+  publisher key could carry only a single network stream. Clients MAY dual-read
+  `["<net>", "latest"]` during migration, keeping the newest verified event.)
 - **Network naming**: NIP codes on the wire (`btc`…), schema names (`mainnet`…) everywhere
   else; the mapping is normative above.
-
-## Open questions for review
-
-1. **Seal depth.** How many confirmations before an epoch file is written — 6? 100? (Deeper =
-   reorg-proof files; shallower = fresher bulk.)
-2. **Signing dependency.** The publisher needs BIP-340 *signing* (never in the schema repo):
-   take `@noble/secp256k1` as the one audited dependency, or write the ~80-line signer in
-   house style?
+- **Seal depth**: 12 confirmations, matching the NIP's 12-header window — an epoch file is
+  written only once every header in it is at least 12 deep. Generators MAY deepen per
+  network.
+- **Signing dependency**: `@noble/curves` BIP-340 signing is the one audited dependency —
+  signing is the single operation where an implementation bug leaks the key. Events are
+  cross-verified against the schema's own `verifySchnorr` in tests.
 
 ---
 

@@ -35,7 +35,7 @@ test('events signed with noble verify under the schema BIP-340 verifier', () => 
 
   assert.equal(event.kind, 33333);
   const tags = Object.fromEntries(event.tags.filter((t) => t.length >= 2));
-  assert.equal(tags.d, 'latest');
+  assert.equal(tags.d, 'tbtc4', 'd is the network code — one replaceable stream per network');
   assert.equal(tags.n, 'tbtc4');
   assert.equal(tags.tip, '138885');
   assert.equal(event.content, headersHex.join(''));
