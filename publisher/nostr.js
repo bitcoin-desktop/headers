@@ -41,7 +41,9 @@ export function finalizeEvent(event, priv) {
   return event;
 }
 
-// NIP-33333 header event for a network.
+// NIP-33333 header event for a network. The d tag IS the network code:
+// relays replace on (pubkey, kind, d), so this gives one stream per
+// network under a single key.
 export function buildHeadersEvent({ network, headersHex, tip, uTags = [] }, priv) {
   const start = tip - headersHex.length + 1;
   return finalizeEvent({
@@ -49,7 +51,7 @@ export function buildHeadersEvent({ network, headersHex, tip, uTags = [] }, priv
     pubkey: publicKey(priv),
     created_at: Math.floor(Date.now() / 1000),
     tags: [
-      ['d', 'latest'],
+      ['d', network],
       ['n', network],
       ['tip', String(tip)],
       ['alt', `Bitcoin headers ${start}-${tip}`],
